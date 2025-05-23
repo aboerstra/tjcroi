@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Faye Primary Brand Colors */
+  --blueberry: #38003C;
+  --green: #16815A;
+  --grey: #ACACAC;
+  
+  /* Faye Secondary "Techno" Colors */
+  --tech-violet: #7A39ED;
+  --tech-pink: #FFADDE;
+  --tech-teal: #04DFC6;
+  --tech-lime: #B2F000;
+  --tech-blue: #1200F1;
+}
+
+@font-face {
+  font-family: 'F37 Judge Condensed';
+  src: url('/fonts/F37JudgeCondensed-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Agrandir';
+  src: url('/fonts/Agrandir-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Agrandir';
+  src: url('/fonts/Agrandir-WideLight.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Agrandir', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--blueberry);
+  @apply bg-gray-50;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'F37 Judge Condensed', sans-serif;
+}
+
+/* Layout */
+.container {
+  @apply mx-auto px-4;
+  max-width: 1280px; /* 7xl in Tailwind */
+}
+
+.dashboard-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+}
+
+.dashboard-grid-item {
+  @apply w-full;
+}
+
+.dashboard-grid-item.span-2 {
+  @apply lg:col-span-2;
+}
+
+/* Cards */
+.card {
+  @apply bg-white rounded-lg shadow-lg p-6 w-full;
+}
+
+.card-header {
+  @apply flex items-center mb-6;
+}
+
+.card-icon {
+  @apply w-10 h-10 flex items-center justify-center mr-3;
+}
+
+.card-title {
+  @apply text-xl font-bold text-blueberry;
+}
+
+.card-subtitle {
+  @apply text-sm text-grey;
+}
+
+/* Metric Cards */
+.metric-card {
+  @apply bg-white rounded-lg p-6 transition-all duration-300 w-full hover:shadow-lg hover:-translate-y-1;
+}
+
+.metric-title {
+  @apply text-sm font-medium text-grey mb-1;
+}
+
+.metric-value {
+  @apply text-2xl font-bold text-blueberry;
+}
+
+.metric-subtitle {
+  @apply text-sm text-green;
+}
+
+/* Faye Polygon Shape */
+.faye-polygon {
+  @apply bg-blueberry transform rotate-45 rounded-lg;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.faye-polygon svg {
+  @apply transform -rotate-45;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-blueberry text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-green text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors;
+}
+
+.btn-secondary.active {
+  @apply bg-opacity-90 ring-2 ring-green ring-opacity-50;
+}
+
+.btn-outline {
+  @apply border border-blueberry text-blueberry px-4 py-2 rounded-md hover:bg-blueberry hover:text-white transition-colors;
+}
+
+/* Tab Buttons */
+.btn-tab {
+  @apply px-4 py-2 rounded-md text-grey hover:text-blueberry transition-colors relative;
+}
+
+.btn-tab.active {
+  @apply text-blueberry font-medium;
+}
+
+.btn-tab.active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-blueberry rounded-full;
+}
+
+/* Lists */
+.feature-list {
+  @apply space-y-2 text-grey;
+}
+
+.feature-list-item {
+  @apply flex items-center;
+}
+
+.feature-list-icon {
+  @apply mr-2;
+}
+
+.feature-list-icon.check {
+  @apply text-green;
+}
+
+.feature-list-icon.bullet {
+  @apply text-tech-violet;
+}
+
+/* Status Indicators */
+@layer components {
+  .status-indicator {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-indicator-success {
+    @apply bg-[#B2F000] bg-opacity-10 text-[#B2F000];
+  }
+
+  .status-indicator-warning {
+    @apply bg-[#FFADDE] bg-opacity-10 text-[#FFADDE];
+  }
+
+  .status-indicator-error {
+    @apply bg-[#04DFC6] bg-opacity-10 text-[#04DFC6];
+  }
+}
+
+/* Info Cards */
+.info-card {
+  @apply bg-white p-6 rounded-lg w-full;
+}
+
+.info-card-icon {
+  @apply w-5 h-5 text-tech-violet;
+}
+
+.info-card-title {
+  @apply font-medium text-blueberry mb-1;
+}
+
+.info-card-content {
+  @apply text-sm text-grey;
+}
+
+/* Chart Styles */
+.chart-container {
+  @apply w-full h-64 relative;
+}
+
+.chart-title {
+  @apply text-lg font-bold text-blueberry mb-2;
+}
+
+.chart-subtitle {
+  @apply text-sm text-grey mb-4;
+}
+
+/* Interactive Elements */
+.interactive-element {
+  @apply transition-all duration-300;
+}
+
+.interactive-element:hover {
+  @apply transform scale-105;
+}
+
+/* Grid Layouts */
+.grid-1-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.grid-1-2-4 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+/* Spacing */
+.section-spacing {
+  @apply mb-8;
+}
+
+.content-spacing {
+  @apply space-y-6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}

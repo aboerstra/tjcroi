@@ -1,0 +1,150 @@
+/* Faye Brand Colors */
+:root {
+  /* Primary Colors */
+  --faye-blueberry: #38003C;
+  --faye-green: #16815A;
+  --faye-white: #FFFFFF;
+  --faye-grey: #ACACAC;
+
+  /* Secondary "Techno" Colors */
+  --tech-violet: #7A39ED;
+  --tech-pink: #FFADDE;
+  --tech-teal: #04DFC6;
+  --tech-lime: #B2F000;
+  --tech-blue: #1200F1;
+}
+
+/* Typography */
+@font-face {
+  font-family: 'F37 Judge Condensed';
+  src: url('/fonts/F37JudgeCondensed-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Agrandir Wide Light';
+  src: url('/fonts/Agrandir-WideLight.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Agrandir Regular';
+  src: url('/fonts/Agrandir-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Base Styles */
+body {
+  font-family: 'Agrandir Regular', sans-serif;
+  color: var(--faye-blueberry);
+  background-color: var(--faye-white);
+  line-height: 1.5;
+}
+
+h1, h2, h3 {
+  font-family: 'F37 Judge Condensed', sans-serif;
+  font-weight: bold;
+  color: var(--faye-blueberry);
+}
+
+h4, h5, h6 {
+  font-family: 'Agrandir Wide Light', sans-serif;
+  color: var(--faye-green);
+}
+
+/* Component Base Styles */
+.primary-button {
+  background-color: var(--faye-green);
+  color: var(--faye-white);
+  border: none;
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-family: 'Agrandir Regular', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primary-button:hover {
+  background-color: #1D9A6C;
+}
+
+.secondary-button {
+  background-color: var(--faye-white);
+  color: var(--faye-green);
+  border: 2px solid var(--faye-green);
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-family: 'Agrandir Regular', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+  background-color: var(--faye-green);
+  color: var(--faye-white);
+}
+
+/* Data Visualization */
+.metric-card {
+  background: var(--faye-white);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metric-title {
+  font-family: 'Agrandir Wide Light', sans-serif;
+  color: var(--faye-grey);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-family: 'F37 Judge Condensed', sans-serif;
+  font-size: 32px;
+  color: var(--faye-blueberry);
+  margin-bottom: 8px;
+}
+
+/* Navigation */
+.nav-tab {
+  font-family: 'Agrandir Regular', sans-serif;
+  color: var(--faye-grey);
+  padding: 12px 24px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-tab.active {
+  color: var(--faye-blueberry);
+  border-bottom-color: var(--faye-green);
+}
+
+/* Faye Brand Devices */
+.faye-cloud-background {
+  background: linear-gradient(
+    135deg,
+    var(--tech-violet) 0%,
+    var(--tech-pink) 25%,
+    var(--tech-teal) 50%,
+    var(--tech-lime) 75%,
+    var(--tech-blue) 100%
+  );
+  opacity: 0.1;
+}
+
+.faye-polygon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background-color: var(--faye-blueberry);
+}
+
+/* Utility Classes */
+.text-blueberry { color: var(--faye-blueberry); }
+.text-green { color: var(--faye-green); }
+.text-grey { color: var(--faye-grey); }
+.bg-blueberry { background-color: var(--faye-blueberry); }
+.bg-green { background-color: var(--faye-green); }
+.bg-white { background-color: var(--faye-white); } 
