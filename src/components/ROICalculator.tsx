@@ -1,297 +1,472 @@
 import React, { useState } from 'react';
-import SliderSection from './ui/SliderSection';
-import { BusinessCaseData } from '../lib/data';
+import MetricRow from './ui/MetricRow';
+import { BusinessCaseData, calculateTotalBenefits, formatCurrency } from '../lib/data';
 
 interface ROICalculatorProps {
   data: BusinessCaseData;
   onDataChange: (newData: Partial<BusinessCaseData>) => void;
 }
 
-type SectionType = 'operations' | 'revenue' | null;
+type SectionType = 'global' | 'leadId' | 'conversion' | 'retention' | 'operations' | 'financial' | null;
 
 const ROICalculator: React.FC<ROICalculatorProps> = ({ data, onDataChange }) => {
-  const [openSection, setOpenSection] = useState<SectionType>(null);
+  const [openSection, setOpenSection] = useState<SectionType>('global');
+
+  const benefits = calculateTotalBenefits(data);
 
   const toggleSection = (section: SectionType) => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  const SectionHeader = ({ title, section }: { title: string; section: Exclude<SectionType, null> }) => (
-    <button 
-      className={`w-full flex items-center justify-between p-4 text-left transition-colors ${
+  const SectionHeader = ({ 
+    title, 
+    section, 
+    sectionBenefit 
+  }: { 
+    title: string; 
+    section: Exclude<SectionType, null>;
+    sectionBenefit?: number;
+  }) => (
+    <div 
+      role="button"
+      tabIndex={0}
+      className={`w-full flex items-center justify-between p-4 text-left transition-colors cursor-pointer ${
         openSection === section 
           ? 'bg-gray-100 rounded-t-lg' 
           : 'bg-white hover:bg-gray-50 rounded-lg'
       }`}
-      onClick={() => toggleSection(section)}
-      aria-expanded={openSection === section}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleSection(section);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleSection(section);
+        }
+      }}
     >
-      <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
-      <div className="flex items-center gap-2 text-gray-500">
-        <span className="text-xs">
-          {openSection === section ? 'Click to collapse' : 'Click to expand'}
-        </span>
-        <svg 
-          className={`w-5 h-5 transform transition-transform ${openSection === section ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+      <div className="flex items-center gap-3">
+        <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
+        {sectionBenefit !== undefined && sectionBenefit > 0 && (
+          <span className="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full">
+            +{formatCurrency(sectionBenefit)}/yr
+          </span>
+        )}
       </div>
-    </button>
+      <svg 
+        className={`w-5 h-5 text-gray-500 transform transition-transform ${openSection === section ? 'rotate-180' : ''}`}
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
   );
 
   return (
     <div className="bg-white rounded-lg shadow-lg divide-y">
-      {/* Clinic Operations Section */}
-      <div className={`transition-all ${openSection === 'operations' ? 'pb-6' : ''}`}>
-        <SectionHeader title="Clinic Operations & Time Savings" section="operations" />
-        {openSection === 'operations' && (
+      {/* SECTION 0: Global Parameters */}
+      <div className={`transition-all ${openSection === 'global' ? 'pb-4' : ''}`}>
+        <SectionHeader title="Global Parameters" section="global" />
+        {openSection === 'global' && (
           <div className="px-4 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-xs font-medium text-gray-500 mb-3">Daily Operations</h4>
-                <div className="space-y-4">
-                  <SliderSection
-                    label="Number of Clinics"
-                    value={data.clinicCount}
-                    min={500}
-                    max={1200}
-                    step={10}
-                    onChange={(value) => onDataChange({ clinicCount: value[0] })}
-                    methodology={
-                      <div>
-                        <p>The Joint currently operates 950+ clinics across the US. Adjust based on projected growth.</p>
-                        <p>Source: The Joint Chiropractic corporate data, Q1 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Current', value: 950 },
-                      { label: 'Q4 Target', value: 1000 },
-                      { label: '2025 Goal', value: 1100 }
-                    ]}
-                  />
-                  
-                  <SliderSection
-                    label="Average Visits Per Day"
-                    value={data.averageVisitsPerDay}
-                    min={20}
-                    max={60}
-                    step={1}
-                    onChange={(value) => onDataChange({ averageVisitsPerDay: value[0] })}
-                    methodology={
-                      <div>
-                        <p>Survey data indicates an average of 40 patient visits per day across clinics.</p>
-                        <p>Source: Survey of 411 staff members, March 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Low', value: 30 },
-                      { label: 'Average', value: 40 },
-                      { label: 'High', value: 50 }
-                    ]}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-xs font-medium text-gray-500 mb-3">Time Efficiency</h4>
-                <div className="space-y-4">
-                  <SliderSection
-                    label="% Reduction in System Refresh Time"
-                    value={data.refreshReductionPercent}
-                    min={0}
-                    max={100}
-                    step={5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ refreshReductionPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>76.3% of staff report spending an average of 60 minutes per day on system refreshes.</p>
-                        <p>The slider represents the percentage reduction in this time that will be achieved.</p>
-                        <p>Source: Survey of 411 staff members, March 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 50 },
-                      { label: 'Expected', value: 75 },
-                      { label: 'Optimistic', value: 90 }
-                    ]}
-                  />
-                  
-                  <SliderSection
-                    label="% Reduction in Workarounds"
-                    value={data.workaroundReductionPercent}
-                    min={0}
-                    max={100}
-                    step={5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ workaroundReductionPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>68.4% of staff report spending an average of 22.5 minutes per day on workarounds.</p>
-                        <p>The slider represents the percentage reduction in this time that will be achieved.</p>
-                        <p>Source: Survey of 411 staff members, March 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 40 },
-                      { label: 'Expected', value: 65 },
-                      { label: 'Optimistic', value: 85 }
-                    ]}
-                  />
-                  
-                  <SliderSection
-                    label="% Reduction in Extra Steps"
-                    value={data.extraStepsReductionPercent}
-                    min={0}
-                    max={100}
-                    step={5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ extraStepsReductionPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>62.8% of staff report spending approximately 1.5 minutes per patient visit on unnecessary steps.</p>
-                        <p>The slider represents the percentage reduction in this time that will be achieved.</p>
-                        <p>Source: Survey of 411 staff members, March 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 45 },
-                      { label: 'Expected', value: 70 },
-                      { label: 'Optimistic', value: 90 }
-                    ]}
-                  />
-                </div>
+            <p className="text-xs text-gray-500 mb-4 italic">Network-wide constants that impact all calculations</p>
+            
+            <MetricRow
+              label="Number of Clinics"
+              baseline={data.clinicCount}
+              change={data.clinicCountChange}
+              onBaselineChange={(v) => onDataChange({ clinicCount: v })}
+              onChangeChange={(v) => onDataChange({ clinicCountChange: v })}
+              unit="number"
+              changeUnit="percent"
+              baselineMin={500}
+              baselineMax={1500}
+              baselineStep={10}
+              changeMin={-30}
+              changeMax={50}
+              methodology="Total number of franchise locations in the network. Growing clinics means more royalty revenue for corporate. Current count: 880."
+            />
+
+            <MetricRow
+              label="Monthly Leads Per Clinic"
+              baseline={data.monthlyLeadsPerClinic}
+              change={data.monthlyLeadsChange}
+              onBaselineChange={(v) => onDataChange({ monthlyLeadsPerClinic: v })}
+              onChangeChange={(v) => onDataChange({ monthlyLeadsChange: v })}
+              unit="number"
+              changeUnit="percent"
+              baselineMin={50}
+              baselineMax={300}
+              baselineStep={10}
+              changeMin={-30}
+              changeMax={50}
+              methodology="Potential new patients inquiring each month per clinic. Includes website, phone, walk-ins, and referrals. Higher leads = more conversion opportunities."
+            />
+
+            <MetricRow
+              label="Average Clinic Revenue"
+              baseline={data.averageClinicRevenue}
+              change={data.averageClinicRevenueChange}
+              onBaselineChange={(v) => onDataChange({ averageClinicRevenue: v })}
+              onChangeChange={(v) => onDataChange({ averageClinicRevenueChange: v })}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={500000}
+              baselineMax={2000000}
+              baselineStep={50000}
+              changeMin={-20}
+              changeMax={20}
+              methodology="Total annual revenue generated by an average clinic. Corporate earns 7% royalty on this revenue. Increasing revenue directly increases corporate income."
+            />
+
+            <MetricRow
+              label="Wellness Plan Price"
+              baseline={data.wellnessPlanPrice}
+              change={data.wellnessPlanPriceChange}
+              onBaselineChange={(v) => onDataChange({ wellnessPlanPrice: v })}
+              onChangeChange={(v) => onDataChange({ wellnessPlanPriceChange: v })}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={49}
+              baselineMax={149}
+              baselineStep={5}
+              changeMin={-25}
+              changeMax={25}
+              methodology="Monthly subscription fee for recurring patients. Higher prices increase patient lifetime value, but may affect conversion rates. Current adult plan: $89/month."
+            />
+
+            <MetricRow
+              label="New Patient Intro Price"
+              baseline={data.newPatientIntroPrice}
+              change={data.introPriceChange}
+              onBaselineChange={(v) => onDataChange({ newPatientIntroPrice: v })}
+              onChangeChange={(v) => onDataChange({ introPriceChange: v })}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={19}
+              baselineMax={49}
+              baselineStep={5}
+              changeMin={-25}
+              changeMax={25}
+              methodology="Special promotional price for first-time patients to encourage trial. This is a one-time revenue before they convert to a wellness plan. Current offer: $29."
+            />
+
+            <MetricRow
+              label="Average Patient LTV (months)"
+              baseline={data.averagePatientLTVMonths}
+              change={data.patientLTVChange}
+              onBaselineChange={(v) => onDataChange({ averagePatientLTVMonths: v })}
+              onChangeChange={(v) => onDataChange({ patientLTVChange: v })}
+              unit="number"
+              changeUnit="percent"
+              baselineMin={3}
+              baselineMax={24}
+              baselineStep={1}
+              changeMin={-30}
+              changeMax={50}
+              methodology="How long the average patient stays on a wellness plan before canceling. Longer retention = higher lifetime value per patient. Key driver of recurring revenue."
+            />
+
+            <MetricRow
+              label="Average Hourly Wage"
+              baseline={data.averageHourlyWage}
+              change={data.hourlyWageChange}
+              onBaselineChange={(v) => onDataChange({ averageHourlyWage: v })}
+              onChangeChange={(v) => onDataChange({ hourlyWageChange: v })}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={12}
+              baselineMax={30}
+              baselineStep={1}
+              changeMin={-10}
+              changeMax={20}
+              methodology="Hourly pay for front desk staff (Wellness Coordinators). Used to calculate time savings value - reducing their system time means direct labor cost savings."
+            />
+
+            <MetricRow
+              label="Corporate Royalty %"
+              baseline={data.corporateRoyaltyPercent}
+              change={data.royaltyChange}
+              onBaselineChange={(v) => onDataChange({ corporateRoyaltyPercent: v })}
+              onChangeChange={(v) => onDataChange({ royaltyChange: v })}
+              unit="percent"
+              changeUnit="percent"
+              baselineMin={5}
+              baselineMax={10}
+              baselineStep={0.5}
+              changeMin={-20}
+              changeMax={20}
+              methodology="Percentage of franchise gross revenue paid to corporate as ongoing royalty. This is how corporate captures value from franchise performance improvements."
+            />
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 1: Lead Identification */}
+      <div className={`transition-all ${openSection === 'leadId' ? 'pb-4' : ''}`}>
+        <SectionHeader 
+          title="1. Lead Identification" 
+          section="leadId" 
+          sectionBenefit={benefits.sectionBenefits.acquisitionBenefit}
+        />
+        {openSection === 'leadId' && (
+          <div className="px-4 pt-4">
+            <p className="text-xs text-gray-500 mb-4 italic">Target market → qualified lead</p>
+            
+            <MetricRow
+              label="Cost Per Lead"
+              baseline={data.costPerLead}
+              change={data.costPerLeadReductionPercent}
+              onBaselineChange={(v) => onDataChange({ costPerLead: v, marketingCostPerLead: v })}
+              onChangeChange={(v) => onDataChange({ costPerLeadReductionPercent: v, marketingCostReductionPercent: v })}
+              unit="currency"
+              changeUnit="percent"
+              isReduction={true}
+              baselineMin={5}
+              baselineMax={50}
+              baselineStep={1}
+              changeMin={0}
+              changeMax={30}
+              methodology="Marketing and advertising spend divided by number of leads generated. Includes digital ads, local marketing, and referral program costs. Reducing this cost improves marketing ROI."
+            />
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 2: Lead → Patient Conversion */}
+      <div className={`transition-all ${openSection === 'conversion' ? 'pb-4' : ''}`}>
+        <SectionHeader 
+          title="2. Lead → Patient Conversion" 
+          section="conversion" 
+          sectionBenefit={benefits.sectionBenefits.conversionBenefit}
+        />
+        {openSection === 'conversion' && (
+          <div className="px-4 pt-4">
+            <p className="text-xs text-gray-500 mb-4 italic">Qualified lead → first visit (highest leverage stage)</p>
+            
+            <MetricRow
+              label="Booking Rate"
+              baseline={data.leadToAppointmentRate}
+              change={data.appointmentRateImprovement}
+              onBaselineChange={(v) => onDataChange({ leadToAppointmentRate: v, currentConversionRate: v })}
+              onChangeChange={(v) => onDataChange({ appointmentRateImprovement: v })}
+              unit="percent"
+              changeUnit="points"
+              baselineMin={30}
+              baselineMax={90}
+              baselineStep={1}
+              changeMin={-20}
+              changeMax={25}
+              methodology="Percentage of leads who schedule their first appointment. This is the first critical step in the conversion funnel. Higher booking rates mean more opportunities to convert leads into paying patients."
+            />
+
+            <MetricRow
+              label="Show Rate"
+              baseline={data.appointmentShowRate}
+              change={data.showRateImprovement}
+              onBaselineChange={(v) => onDataChange({ appointmentShowRate: v })}
+              onChangeChange={(v) => onDataChange({ showRateImprovement: v })}
+              unit="percent"
+              changeUnit="points"
+              baselineMin={60}
+              baselineMax={100}
+              baselineStep={1}
+              changeMin={-15}
+              changeMax={15}
+              methodology="Percentage of booked appointments where patients actually arrive. No-shows waste clinic capacity and staff time. Reminders and easy rescheduling can improve this rate."
+            />
+
+            {/* Calculated: Effective Conversion */}
+            <div className="border-b border-gray-100 py-3 bg-blue-50 rounded-lg px-4 mt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-blue-700">→ Effective Conversion</span>
+                <span className="text-sm text-blue-600">
+                  {Math.round(data.leadToAppointmentRate * data.appointmentShowRate / 100)}% → 
+                  <span className="font-bold ml-1">
+                    {Math.round((data.leadToAppointmentRate + data.appointmentRateImprovement) * (data.appointmentShowRate + data.showRateImprovement) / 100)}%
+                  </span>
+                </span>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Error Reduction & Revenue Section */}
-      <div className={`transition-all ${openSection === 'revenue' ? 'pb-6' : ''}`}>
-        <SectionHeader title="Error Reduction & Revenue" section="revenue" />
-        {openSection === 'revenue' && (
+      {/* SECTION 3: Patient Retention */}
+      <div className={`transition-all ${openSection === 'retention' ? 'pb-4' : ''}`}>
+        <SectionHeader 
+          title="3. Patient Retention" 
+          section="retention" 
+          sectionBenefit={benefits.sectionBenefits.retentionBenefit}
+        />
+        {openSection === 'retention' && (
           <div className="px-4 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-xs font-medium text-gray-500 mb-3">Revenue Recovery</h4>
-                <div className="space-y-4">
-                  <SliderSection
-                    label="% Recovery of Lost Revenue"
-                    value={data.revenueLeakageReductionPercent}
-                    min={0}
-                    max={100}
-                    step={5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ revenueLeakageReductionPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>53.4% of staff report payment processing failures resulting in an estimated 1.5% revenue leakage.</p>
-                        <p>The slider represents the percentage of this lost revenue that will be recovered.</p>
-                        <p>Source: Survey of 411 staff members and financial analysis, March 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 40 },
-                      { label: 'Expected', value: 60 },
-                      { label: 'Optimistic', value: 80 }
-                    ]}
-                  />
-                  
-                  <SliderSection
-                    label="Percentage Point Increase in Retention"
-                    value={data.retentionImprovementPercent}
-                    min={0}
-                    max={6}
-                    step={0.5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ retentionImprovementPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>Patient retention has declined from 70% to 64% over the past 18 months.</p>
-                        <p>The slider represents the percentage point increase in retention that will be achieved.</p>
-                        <p>Each percentage point is estimated ~$10K per clinic in annual revenue.</p>
-                        <p>Source: The Joint Chiropractic corporate data, Q1 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 2 },
-                      { label: 'Expected', value: 4 },
-                      { label: 'Optimistic', value: 6 }
-                    ]}
-                  />
-                </div>
-              </div>
+            <p className="text-xs text-gray-500 mb-4 italic">First visit → recurring patient / long-term value</p>
+            
+            <MetricRow
+              label="Plan Conversion Rate"
+              baseline={data.planConversionRate}
+              change={data.planConversionImprovement}
+              onBaselineChange={(v) => onDataChange({ planConversionRate: v })}
+              onChangeChange={(v) => onDataChange({ planConversionImprovement: v })}
+              unit="percent"
+              changeUnit="points"
+              baselineMin={40}
+              baselineMax={90}
+              baselineStep={1}
+              changeMin={-15}
+              changeMax={20}
+              methodology="Percentage of first-time visitors who sign up for a monthly wellness plan. This is the key moment where one-time patients become recurring revenue. Higher conversion = more predictable, recurring income."
+            />
 
-              <div>
-                <h4 className="text-xs font-medium text-gray-500 mb-3">Cost Reduction</h4>
-                <div className="space-y-4">
-                  <SliderSection
-                    label="% Reduction in IT Support Costs"
-                    value={data.itCostReductionPercent}
-                    min={0}
-                    max={50}
-                    step={5}
-                    suffix="%"
-                    onChange={(value) => onDataChange({ itCostReductionPercent: value[0] })}
-                    methodology={
-                      <div>
-                        <p>Current IT support costs for the Front Office system are approximately $1.5M annually.</p>
-                        <p>The slider represents the percentage reduction in these costs that will be achieved through the microservices architecture.</p>
-                        <p>Source: The Joint Chiropractic IT department, Q1 2025.</p>
-                      </div>
-                    }
-                    presets={[
-                      { label: 'Conservative', value: 15 },
-                      { label: 'Expected', value: 30 },
-                      { label: 'Optimistic', value: 45 }
-                    ]}
-                  />
+            <MetricRow
+              label="Retention Rate"
+              baseline={data.currentRetentionRate}
+              change={data.retentionImprovementPercent}
+              onBaselineChange={(v) => onDataChange({ currentRetentionRate: v })}
+              onChangeChange={(v) => onDataChange({ retentionImprovementPercent: v })}
+              unit="percent"
+              changeUnit="points"
+              baselineMin={50}
+              baselineMax={80}
+              baselineStep={1}
+              changeMin={-15}
+              changeMax={15}
+              methodology="Percentage of wellness plan members who stay enrolled month-over-month. Recent data shows decline from 70% to 64%. Each percentage point improvement significantly increases patient lifetime value."
+            />
+          </div>
+        )}
+      </div>
 
-                  <div className="mt-3">
-                    <div className="flex items-center gap-1 mb-1">
-                      <label className="text-xs font-medium">Implementation Cost</label>
-                      <div className="relative group">
-                        <svg 
-                          className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                          />
-                        </svg>
-                        <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                          <div>
-                            <p>The implementation cost includes:</p>
-                            <ul className="list-disc pl-5 space-y-1">
-                              <li>Development: $225,000</li>
-                              <li>Testing: $50,000</li>
-                              <li>Training: $25,000</li>
-                              <li>Deployment: $25,000</li>
-                            </ul>
-                            <p>This cost is borne entirely by corporate, while benefits accrue to both corporate and franchisees.</p>
-                            <p>Source: The Joint Chiropractic IT department and vendor quotes, Q1 2025.</p>
-                          </div>
-                          <div className="absolute left-0 bottom-[-6px] w-3 h-3 bg-gray-900 transform rotate-45"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-100 p-2 rounded text-center text-sm font-medium">
-                      ${data.implementationCost.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* SECTION 4: Clinic Operations */}
+      <div className={`transition-all ${openSection === 'operations' ? 'pb-4' : ''}`}>
+        <SectionHeader 
+          title="4. Clinic Operations" 
+          section="operations" 
+          sectionBenefit={benefits.sectionBenefits.operationsBenefit}
+        />
+        {openSection === 'operations' && (
+          <div className="px-4 pt-4">
+            <p className="text-xs text-gray-500 mb-4 italic">Efficient, positive patient experience</p>
+            
+            <MetricRow
+              label="System Time / Day"
+              baseline={data.currentSystemTimeMinutes}
+              change={data.timeReductionPercent}
+              onBaselineChange={(v) => onDataChange({ currentSystemTimeMinutes: v })}
+              onChangeChange={(v) => onDataChange({ timeReductionPercent: v })}
+              unit="minutes"
+              changeUnit="percent"
+              isReduction={true}
+              baselineMin={30}
+              baselineMax={120}
+              baselineStep={5}
+              changeMin={0}
+              changeMax={90}
+              methodology="Minutes per day staff spend on administrative system tasks like refreshing screens, workarounds, and manual data entry. Reducing this time allows staff to focus on patient care and improves job satisfaction."
+            />
+
+            <MetricRow
+              label="Revenue Leakage"
+              baseline={data.currentRevenueLeakagePercent}
+              change={data.revenueLeakageReductionPercent}
+              onBaselineChange={(v) => onDataChange({ currentRevenueLeakagePercent: v })}
+              onChangeChange={(v) => onDataChange({ revenueLeakageReductionPercent: v })}
+              unit="percent"
+              changeUnit="percent"
+              isReduction={true}
+              baselineMin={0.5}
+              baselineMax={3}
+              baselineStep={0.1}
+              changeMin={0}
+              changeMax={100}
+              methodology="Percentage of revenue lost due to billing errors, missed charges, system issues, and manual processing mistakes. Even 1% of $1M clinic revenue = $10K/year lost per clinic. Recovery directly improves bottom line."
+            />
+
+            <MetricRow
+              label="Annual IT Costs"
+              baseline={data.currentAnnualITCosts}
+              change={data.itCostReductionPercent}
+              onBaselineChange={(v) => onDataChange({ currentAnnualITCosts: v })}
+              onChangeChange={(v) => onDataChange({ itCostReductionPercent: v })}
+              unit="currency"
+              changeUnit="percent"
+              isReduction={true}
+              baselineMin={1000000}
+              baselineMax={10000000}
+              baselineStep={500000}
+              changeMin={0}
+              changeMax={50}
+              methodology="Total corporate IT infrastructure and support costs. Modern, consolidated systems can reduce maintenance overhead, legacy system costs, and support tickets. Industry benchmark: 20-30% reduction achievable."
+            />
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 5: Implementation Costs */}
+      <div className={`transition-all ${openSection === 'financial' ? 'pb-4' : ''}`}>
+        <SectionHeader title="5. Implementation Costs" section="financial" />
+        {openSection === 'financial' && (
+          <div className="px-4 pt-4">
+            <p className="text-xs text-gray-500 mb-4 italic">One-time and recurring costs</p>
+            
+            <MetricRow
+              label="Implementation CapEx"
+              baseline={data.implementationCapEx}
+              change={0}
+              onBaselineChange={(v) => onDataChange({ 
+                implementationCapEx: v,
+                implementationCost: v + data.implementationOpEx
+              })}
+              onChangeChange={() => {}}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={0}
+              baselineMax={500000}
+              baselineStep={25000}
+              changeMin={0}
+              changeMax={20}
+              methodology="One-time capital investment for software, hardware, and infrastructure. This is a balance sheet asset that may be amortized. Includes development costs, system purchases, and integration work."
+            />
+
+            <MetricRow
+              label="Implementation OpEx"
+              baseline={data.implementationOpEx}
+              change={0}
+              onBaselineChange={(v) => onDataChange({ 
+                implementationOpEx: v,
+                implementationCost: data.implementationCapEx + v
+              })}
+              onChangeChange={() => {}}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={0}
+              baselineMax={200000}
+              baselineStep={10000}
+              changeMin={0}
+              changeMax={20}
+              methodology="One-time operating costs for implementation. Includes training, change management, project management, and consulting fees. Expensed immediately rather than capitalized."
+            />
+
+            <MetricRow
+              label="Recurring Annual OpEx"
+              baseline={data.recurringAnnualOpEx}
+              change={data.annualInflationRate}
+              onBaselineChange={(v) => onDataChange({ recurringAnnualOpEx: v })}
+              onChangeChange={(v) => onDataChange({ annualInflationRate: v })}
+              unit="currency"
+              changeUnit="percent"
+              baselineMin={0}
+              baselineMax={150000}
+              baselineStep={5000}
+              changeMin={0}
+              changeMax={10}
+              methodology="Annual ongoing costs for licenses, maintenance, support, and hosting. The change % represents expected annual inflation rate (typically 2-5%) applied to these costs each year."
+            />
           </div>
         )}
       </div>
