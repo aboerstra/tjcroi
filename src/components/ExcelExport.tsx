@@ -99,12 +99,12 @@ const ExcelExport: React.FC<ExcelExportProps> = ({ data, benefits }) => {
       [null, null, null],
       ['Operational Improvements', 'Impact', 'Notes'],
       ['System Refresh Time',
-        `${data.refreshReductionPercent}% reduction`,
-        'Reduction in system refresh delays'
+        `${data.refreshMinutesSavedPerDay} minutes`,
+        'Minutes saved per day due to reduced system refresh time'
       ],
       ['Extra Process Steps',
-        `${data.extraStepsReductionPercent}% reduction`,
-        'Reduction in unnecessary steps'
+        `${data.extraStepsSavedPerVisit} steps`,
+        'Steps saved per patient visit due to streamlined processes'
       ],
       ['Revenue Leakage',
         `${data.revenueLeakageReductionPercent}% reduction`,
@@ -140,7 +140,7 @@ const ExcelExport: React.FC<ExcelExportProps> = ({ data, benefits }) => {
       ['Category', 'Metric', 'Impact'],
       ['Architecture', 'Microservices', 'Improved scalability and maintenance'],
       ['Integration', 'API-First Design', 'Enhanced system interoperability'],
-      ['Performance', `${data.refreshReductionPercent}% faster`, 'System response time improvement'],
+      ['Performance', `${data.refreshMinutesSavedPerDay} minutes faster`, 'System response time improvement'],
       ['Security', 'Enhanced Controls', 'Improved data protection'],
       ['Compliance', 'ASC 350-40', 'Capitalization requirements met'],
       [null, null, null],
@@ -153,12 +153,46 @@ const ExcelExport: React.FC<ExcelExportProps> = ({ data, benefits }) => {
       ['Stabilization', '2 months', 'Monitoring and optimization']
     ];
 
+    // ROI Calculations Sheet
+    const roiCalculationsData = [
+      ['ROI Variable', 'Value', 'Description'],
+      ['totalAnnualBenefits', `$${benefits.totalAnnualBenefits.toLocaleString()}`, 'Total annual recurring benefits (system-wide)'],
+      ['corporateAnnualBenefits', `$${benefits.corporateAnnualBenefits.toLocaleString()}`, 'Annual recurring benefits for corporate'],
+      ['franchiseAnnualBenefits', `$${benefits.franchiseAnnualBenefits.toLocaleString()}`, 'Annual recurring benefits for franchisees'],
+      ['paybackPeriodMonths', `${benefits.paybackPeriodMonths.toFixed(1)} months`, 'Months to break even (system-wide)'],
+      ['corporatePaybackPeriodMonths', `${benefits.corporatePaybackPeriodMonths.toFixed(1)} months`, 'Months to break even (corporate)'],
+      ['firstYearROI', `${benefits.firstYearROI.toFixed(1)}%`, 'First year ROI (system-wide)'],
+      ['corporateFirstYearROI', `${benefits.corporateFirstYearROI.toFixed(1)}%`, 'First year ROI (corporate)'],
+      ['fiveYearROI', `${benefits.fiveYearROI.toFixed(1)}%`, 'Five-year cumulative ROI (system-wide)'],
+      ['corporateFiveYearROI', `${benefits.corporateFiveYearROI.toFixed(1)}%`, 'Five-year cumulative ROI (corporate)'],
+      ['fiveYearCumulativeBenefits', `$${benefits.fiveYearCumulativeBenefits.toLocaleString()}`, 'Total benefits over 5 years (system-wide)'],
+      ['corporateFiveYearCumulativeBenefits', `$${benefits.corporateFiveYearCumulativeBenefits.toLocaleString()}`, 'Total benefits over 5 years (corporate)'],
+      ['timeSavingsValue', `$${benefits.timeSavingsValue.toLocaleString()}`, 'Annual value of staff time savings (system-wide)'],
+      ['corporateTimeSavingsValue', `$${benefits.corporateTimeSavingsValue.toLocaleString()}`, 'Annual value of staff time savings (corporate)'],
+      ['franchiseTimeSavingsValue', `$${benefits.franchiseTimeSavingsValue.toLocaleString()}`, 'Annual value of staff time savings (franchise)'],
+      ['revenueLeakageRecovery', `$${benefits.revenueLeakageRecovery.toLocaleString()}`, 'Annual value of recovered revenue (system-wide)'],
+      ['corporateRevenueLeakageRecovery', `$${benefits.corporateRevenueLeakageRecovery.toLocaleString()}`, 'Annual value of recovered revenue (corporate)'],
+      ['franchiseRevenueLeakageRecovery', `$${benefits.franchiseRevenueLeakageRecovery.toLocaleString()}`, 'Annual value of recovered revenue (franchise)'],
+      ['retentionImprovementValue', `$${benefits.retentionImprovementValue.toLocaleString()}`, 'Annual value of improved patient retention (system-wide)'],
+      ['corporateRetentionImprovementValue', `$${benefits.corporateRetentionImprovementValue.toLocaleString()}`, 'Annual value of improved patient retention (corporate)'],
+      ['franchiseRetentionImprovementValue', `$${benefits.franchiseRetentionImprovementValue.toLocaleString()}`, 'Annual value of improved patient retention (franchise)'],
+      ['itCostReduction', `$${benefits.itCostReduction.toLocaleString()}`, 'Annual IT cost reduction (system-wide)'],
+      ['corporateRoyaltyRevenue', `$${benefits.corporateRoyaltyRevenue.toLocaleString()}`, 'Annual royalty revenue for corporate'],
+      ['timeSavings', `$${benefits.timeSavings.toLocaleString()}`, 'Annual time savings (for breakdown)'],
+      ['errorReduction', `$${benefits.errorReduction.toLocaleString()}`, 'Annual error reduction (for breakdown)'],
+      ['patientRetention', `$${benefits.patientRetention.toLocaleString()}`, 'Annual patient retention value (for breakdown)'],
+      ['microservicesBenefits', `$${benefits.microservicesBenefits.toLocaleString()}`, 'Annual microservices/IT cost benefits (for breakdown)'],
+      ['implementationCost', `$${benefits.implementationCost.toLocaleString()}`, 'Total implementation cost (capex, amortized)'],
+      ['corporateRoyaltyPercent', `${benefits.corporateRoyaltyPercent}%`, 'Royalty percent used for corporate benefit allocation']
+    ];
+
     // Add sheets to workbook
     const sheets = [
       { name: 'Executive Summary', data: executiveSummaryData },
       { name: 'Corporate View', data: corporateViewData },
       { name: 'System-Wide View', data: systemWideViewData },
-      { name: 'Technical Details', data: technicalDetailsData }
+      { name: 'Technical Details', data: technicalDetailsData },
+      { name: 'ROI Calculations', data: roiCalculationsData }
     ];
 
     sheets.forEach(sheet => {

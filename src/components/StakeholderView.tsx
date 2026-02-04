@@ -36,7 +36,7 @@ const StakeholderView: React.FC<StakeholderViewProps> = ({ data, benefits, viewT
           </div>
           <div className="metric-card">
             <div className="metric-title">Staff Efficiency Gain</div>
-            <div className="metric-value">{data.extraStepsReductionPercent}%</div>
+            <div className="metric-value">{data.extraStepsSavedPerVisit} steps</div>
             <div className="text-green text-sm">Process Improvement</div>
           </div>
           <div className="metric-card">
@@ -226,12 +226,12 @@ const StakeholderView: React.FC<StakeholderViewProps> = ({ data, benefits, viewT
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="metric-card">
             <div className="metric-title">System Refresh</div>
-            <div className="metric-value">{data.refreshReductionPercent}%</div>
+            <div className="metric-value">{data.refreshMinutesSavedPerDay} minutes</div>
             <div className="text-green text-sm">Performance Gain</div>
           </div>
           <div className="metric-card">
             <div className="metric-title">Process Steps</div>
-            <div className="metric-value">{data.extraStepsReductionPercent}%</div>
+            <div className="metric-value">{data.extraStepsSavedPerVisit} steps</div>
             <div className="text-green text-sm">Reduction</div>
           </div>
           <div className="metric-card">

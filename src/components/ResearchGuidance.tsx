@@ -17,19 +17,19 @@ const ResearchGuidance: React.FC<ResearchGuidanceProps> = ({ data }) => {
             <div className="border-l-4 border-[#3A0A3A] pl-4">
               <p className="font-medium">System Refresh Issues</p>
               <p className="text-sm text-gray-600">76.3% of staff report refreshing the system "constantly" or "frequently" (Q34)</p>
-              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.refreshReductionPercent >= 70 ? 'Optimal' : data.refreshReductionPercent >= 50 ? 'Good' : 'Consider increasing'}</p>
+              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.refreshMinutesSavedPerDay >= 45 ? 'Optimal' : data.refreshMinutesSavedPerDay >= 30 ? 'Good' : 'Consider increasing'}</p>
             </div>
             
             <div className="border-l-4 border-[#3A0A3A] pl-4">
               <p className="font-medium">Workaround Issues</p>
               <p className="text-sm text-gray-600">68.4% describe the Front Office as having "a lot of inefficiencies, but I've learned workarounds" (Q6)</p>
-              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.workaroundReductionPercent >= 65 ? 'Optimal' : data.workaroundReductionPercent >= 45 ? 'Good' : 'Consider increasing'}</p>
+              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.workaroundMinutesSavedPerDay >= 15 ? 'Optimal' : data.workaroundMinutesSavedPerDay >= 10 ? 'Good' : 'Consider increasing'}</p>
             </div>
             
             <div className="border-l-4 border-[#3A0A3A] pl-4">
               <p className="font-medium">Extra Steps Issues</p>
               <p className="text-sm text-gray-600">52.6% describe patient search as "Takes Extra Steps" (Q9), 62.8% selected "Too many steps & dropdowns" for checkout (Q19)</p>
-              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.extraStepsReductionPercent >= 60 ? 'Optimal' : data.extraStepsReductionPercent >= 40 ? 'Good' : 'Consider increasing'}</p>
+              <p className="text-sm text-gray-600 mt-1">Recommended setting: {data.extraStepsSavedPerVisit >= 1 ? 'Optimal' : data.extraStepsSavedPerVisit >= 0.5 ? 'Good' : 'Consider increasing'}</p>
             </div>
             
             <div className="border-l-4 border-[#3A0A3A] pl-4">

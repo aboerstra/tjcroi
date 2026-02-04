@@ -1,5 +1,5 @@
 import React from 'react';
-import { BusinessCaseData, BenefitCalculation, formatCurrency } from '../lib/data';
+import { BusinessCaseData, BenefitCalculation, formatCurrency, formatLargeNumber } from '../lib/data';
 
 // Use global html2pdf from CDN
 declare const html2pdf: any;
@@ -349,7 +349,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
       <div class="header">
         <div class="header-content">
           <div class="logo-container">
-            <img src="/images/Faye%20Logo%20-%20White.png" alt="Faye Logo" class="faye-logo" />
+            <img src="images/Faye%20Logo%20-%20White.png" alt="Faye Logo" class="faye-logo" />
           </div>
           <div class="header-text">
             <h1>Front Office System Modernization</h1>
@@ -357,7 +357,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
             <p>${showCorporateView ? 'Corporate View' : 'System-Wide View'}</p>
           </div>
           <div class="logo-container">
-            <img src="/images/tjc-logo-reverse.jpg" alt="The Joint Logo" class="tjc-logo" />
+            <img src="images/tjc-logo-reverse.jpg" alt="The Joint Logo" class="tjc-logo" />
           </div>
         </div>
       </div>
@@ -388,6 +388,56 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
         </div>
       </div>
 
+      <!-- ROI Variables Table Section -->
+      <div class="section avoid-break">
+        <div class="section-title">Key Inputs & Calculated Benefits</div>
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead>
+            <tr style="background:#f3f3f3;">
+              <th style="border:1px solid #ccc; padding:6px; text-align:left;">Category</th>
+              <th style="border:1px solid #ccc; padding:6px; text-align:right;">Value</th>
+              <th style="border:1px solid #ccc; padding:6px; text-align:left;">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${[
+              // Global Parameters
+              ['Clinic Count', `${data.clinicCount}`, 'Total franchise locations in network'],
+              ['Avg Clinic Revenue', formatCurrency(data.averageClinicRevenue), 'Annual revenue per clinic'],
+              ['Wellness Plan Price', formatCurrency(data.wellnessPlanPrice) + '/mo', 'Monthly membership fee'],
+              ['Corporate Royalty', `${data.corporateRoyaltyPercent}%`, 'Royalty % on franchise revenue'],
+              // Section Benefits
+              ['Acquisition Benefit', formatCurrency(benefits.sectionBenefits.acquisitionBenefit), 'Marketing cost savings from lead quality improvements'],
+              ['Conversion Benefit', formatCurrency(benefits.sectionBenefits.conversionBenefit), 'Revenue from improved lead-to-patient conversion'],
+              ['Retention Benefit', formatCurrency(benefits.sectionBenefits.retentionBenefit), 'Value from improved patient retention'],
+              ['Operations Benefit', formatCurrency(benefits.sectionBenefits.operationsBenefit), 'Time savings + revenue recovery + IT costs'],
+              // Key Totals
+              ['Total Annual Benefits', formatCurrency(benefits.totalAnnualBenefits), 'System-wide annual recurring benefits'],
+              ['Corporate Annual Benefits', formatCurrency(benefits.corporateAnnualBenefits), 'Corporate share of benefits'],
+              ['Franchise Annual Benefits', formatCurrency(benefits.franchiseAnnualBenefits), 'Franchise share of benefits'],
+              // ROI Metrics
+              ['Payback Period', benefits.paybackPeriodMonths.toFixed(1) + ' months', 'Time to break even (system-wide)'],
+              ['Corporate Payback', benefits.corporatePaybackPeriodMonths.toFixed(1) + ' months', 'Time to break even (corporate)'],
+              ['5-Year ROI', benefits.fiveYearROI.toFixed(0) + '%', 'Five-year cumulative ROI'],
+              ['5-Year Benefits', formatCurrency(benefits.fiveYearCumulativeBenefits), 'Total 5-year system-wide benefits'],
+              // Operations Details
+              ['Time Savings Value', formatCurrency(benefits.timeSavingsValue), `${data.currentSystemTimeMinutes}min/day × ${data.timeReductionPercent}% reduction`],
+              ['Revenue Recovery', formatCurrency(benefits.revenueLeakageRecovery), `${data.currentRevenueLeakagePercent}% leakage × ${data.revenueLeakageReductionPercent}% recovered`],
+              ['IT Cost Reduction', formatCurrency(benefits.itCostReduction), `${data.itCostReductionPercent}% of ${formatCurrency(data.currentAnnualITCosts)} IT costs`],
+              // Implementation
+              ['Implementation Cost', formatCurrency(data.implementationCost), `CapEx: ${formatCurrency(data.implementationCapEx)} + OpEx: ${formatCurrency(data.implementationOpEx)}`],
+              ['Recurring Annual OpEx', formatCurrency(data.recurringAnnualOpEx), `Annual ongoing costs (+${data.annualInflationRate}% inflation)`]
+            ].map(([key, value, desc]) => `
+              <tr>
+                <td style="border:1px solid #ccc; padding:6px;">${key}</td>
+                <td style="border:1px solid #ccc; padding:6px; text-align:right;">${value}</td>
+                <td style="border:1px solid #ccc; padding:6px;">${desc}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
       <div class="page-break"></div>
 
       <div class="section avoid-break">
@@ -396,15 +446,23 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
         <div class="stakeholder-section">
           <div class="stakeholder-title">CEO Perspective</div>
           <div class="stakeholder-content">
-            <p><strong>Strategic Value:</strong> The modernization project directly addresses key operational challenges while supporting growth initiatives.</p>
+            <p><strong>Strategic Value:</strong> The modernization project directly addresses key operational challenges while supporting growth initiatives across the entire customer journey.</p>
             <div class="metric-grid">
               <div class="metric-card">
                 <div class="metric-value">${data.clinicCount}</div>
                 <div class="metric-label">Clinics Impacted</div>
               </div>
               <div class="metric-card">
-                <div class="metric-value">${data.retentionImprovementPercent}%</div>
+                <div class="metric-value">+${data.retentionImprovementPercent} pts</div>
                 <div class="metric-label">Retention Improvement</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">+${data.appointmentRateImprovement} pts</div>
+                <div class="metric-label">Booking Rate Improvement</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">+${data.planConversionImprovement} pts</div>
+                <div class="metric-label">Plan Conversion Improvement</div>
               </div>
             </div>
           </div>
@@ -413,15 +471,23 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
         <div class="stakeholder-section">
           <div class="stakeholder-title">CFO Perspective</div>
           <div class="stakeholder-content">
-            <p><strong>Financial Impact:</strong> The project demonstrates strong returns with clear cost control and revenue enhancement.</p>
+            <p><strong>Financial Impact:</strong> The project demonstrates strong returns with clear cost structure and multiple revenue enhancement paths.</p>
             <div class="metric-grid">
               <div class="metric-card">
-                <div class="metric-value">${formatCurrency(data.implementationCost)}</div>
-                <div class="metric-label">Implementation Cost</div>
+                <div class="metric-value">${formatCurrency(data.implementationCapEx)}</div>
+                <div class="metric-label">Implementation CapEx</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">${formatCurrency(data.implementationOpEx)}</div>
+                <div class="metric-label">Implementation OpEx</div>
               </div>
               <div class="metric-card">
                 <div class="metric-value">${data.revenueLeakageReductionPercent}%</div>
-                <div class="metric-label">Revenue Recovery</div>
+                <div class="metric-label">Revenue Leakage Recovered</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">${formatCurrency(data.recurringAnnualOpEx)}/yr</div>
+                <div class="metric-label">Recurring OpEx</div>
               </div>
             </div>
           </div>
@@ -430,10 +496,11 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
         <div class="stakeholder-section">
           <div class="stakeholder-title">CTO Perspective</div>
           <div class="stakeholder-content">
-            <p><strong>Technical Benefits:</strong> Modern microservices architecture delivers improved reliability and maintainability.</p>
+            <p><strong>Technical Benefits:</strong> Modern microservices architecture delivers improved reliability, maintainability, and operational efficiency.</p>
             <ul style="margin-top: 10px; padding-left: 20px;">
-              <li>Reduced system refresh times by ${data.refreshReductionPercent}%</li>
-              <li>Eliminated ${data.workaroundReductionPercent}% of technical workarounds</li>
+              <li>System time reduced by ${data.timeReductionPercent}% (${Math.round(data.currentSystemTimeMinutes * data.timeReductionPercent / 100)} minutes saved per day)</li>
+              <li>IT cost reduction of ${data.itCostReductionPercent}% (${formatCurrency(benefits.itCostReduction)}/year)</li>
+              <li>Downtime reduction target: ${data.downtimeReductionPercent}%</li>
               <li>Improved system stability and performance</li>
             </ul>
           </div>
@@ -450,38 +517,38 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
             <h3 class="text-lg font-semibold mb-3">Survey Findings</h3>
             <div class="space-y-4">
               <div class="research-item">
-                <div class="research-title">System Refresh Issues</div>
+                <div class="research-title">System Time Issues</div>
                 <div class="research-stat">76.3%</div>
                 <p>Staff report refreshing the system "constantly" or "frequently" (Q34)</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.refreshReductionPercent >= 70 ? 'Optimal' : data.refreshReductionPercent >= 50 ? 'Good' : 'Consider increasing'}</p>
-              </div>
-              
-              <div class="research-item">
-                <div class="research-title">Workaround Issues</div>
-                <div class="research-stat">68.4%</div>
-                <p>Staff describe having "a lot of inefficiencies, but I've learned workarounds" (Q6)</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.workaroundReductionPercent >= 65 ? 'Optimal' : data.workaroundReductionPercent >= 45 ? 'Good' : 'Consider increasing'}</p>
-              </div>
-              
-              <div class="research-item">
-                <div class="research-title">Extra Steps Issues</div>
-                <div class="research-stat">62.8%</div>
-                <p>Selected "Too many steps & dropdowns" for checkout (Q19)</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.extraStepsReductionPercent >= 60 ? 'Optimal' : data.extraStepsReductionPercent >= 40 ? 'Good' : 'Consider increasing'}</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: ${data.timeReductionPercent}% reduction of ${data.currentSystemTimeMinutes} min/day</p>
               </div>
               
               <div class="research-item">
                 <div class="research-title">Payment Processing Issues</div>
                 <div class="research-stat">53.4%</div>
                 <p>Reported payment processing failures in the past week (Q32)</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.revenueLeakageReductionPercent >= 50 ? 'Optimal' : data.revenueLeakageReductionPercent >= 30 ? 'Good' : 'Consider increasing'}</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: ${data.revenueLeakageReductionPercent}% of ${data.currentRevenueLeakagePercent}% leakage recovered</p>
               </div>
               
               <div class="research-item">
                 <div class="research-title">Patient Retention</div>
-                <div class="research-stat">-6%</div>
-                <p>Wellness plan retention dropping from 70% to 64% (conference data)</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.retentionImprovementPercent >= 6 ? 'Optimal' : data.retentionImprovementPercent >= 3 ? 'Good' : 'Consider increasing'}</p>
+                <div class="research-stat">64%</div>
+                <p>Current wellness plan retention (down from 70%)</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: +${data.retentionImprovementPercent} pts improvement targeted</p>
+              </div>
+              
+              <div class="research-item">
+                <div class="research-title">Conversion Funnel</div>
+                <div class="research-stat">${data.leadToAppointmentRate}%</div>
+                <p>Current booking rate from qualified leads</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: +${data.appointmentRateImprovement} pts booking, +${data.showRateImprovement} pts show rate</p>
+              </div>
+              
+              <div class="research-item">
+                <div class="research-title">Plan Conversion</div>
+                <div class="research-stat">${data.planConversionRate}%</div>
+                <p>Current rate of first-time patients converting to plans</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: +${data.planConversionImprovement} pts improvement targeted</p>
               </div>
             </div>
           </div>
@@ -492,7 +559,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
               <div class="research-item">
                 <div class="research-title">McKinsey & Company</div>
                 <p class="text-sm text-gray-600">"Organizations implementing microservices architecture have reported up to a 30% reduction in IT costs through optimized resource utilization, reduced maintenance overhead, and independent service scaling."</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.itCostReductionPercent >= 25 ? 'Optimal' : data.itCostReductionPercent >= 15 ? 'Good' : 'Consider increasing'}</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: ${data.itCostReductionPercent}% IT cost reduction</p>
               </div>
               
               <div class="research-item">
@@ -503,18 +570,13 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
               <div class="research-item">
                 <div class="research-title">Forrester</div>
                 <p class="text-sm text-gray-600">"Healthcare organizations that modernize legacy systems through microservices architecture report 40% faster development cycles and 25-35% reduction in operational costs."</p>
-                <p class="text-sm text-gray-600 mt-1">Setting: ${data.downtimeReductionPercent >= 40 ? 'Optimal' : data.downtimeReductionPercent >= 25 ? 'Good' : 'Consider increasing'}</p>
-              </div>
-              
-              <div class="research-item">
-                <div class="research-title">Market Growth</div>
-                <p class="text-sm text-gray-600">The global microservices architecture market is projected to reach $15.97 billion by 2029, growing at a CAGR of 21% from 2022 to 2029.</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: ${data.downtimeReductionPercent}% downtime reduction</p>
               </div>
               
               <div class="research-item">
                 <div class="research-title">Implementation Cost Benchmark</div>
                 <p class="text-sm text-gray-600">Industry average for similar healthcare software modernization projects ranges from $250,000 to $500,000.</p>
-                <p class="text-sm text-gray-600 mt-1">Your setting: ${data.implementationCost <= 350000 ? 'Competitive' : data.implementationCost <= 450000 ? 'Average' : 'Above average'}</p>
+                <p class="text-sm text-gray-600 mt-1">Your setting: ${formatCurrency(data.implementationCost)} (${data.implementationCost <= 350000 ? 'Competitive' : data.implementationCost <= 450000 ? 'Average' : 'Above average'})</p>
               </div>
             </div>
           </div>
@@ -522,59 +584,150 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
       </div>
 
       <div class="section">
-        <div class="section-title">Time Impact Analysis</div>
-        <div class="time-impact-grid">
-          <div class="time-metric">
-            <div class="time-label">System Refresh Time</div>
-            <div class="time-value">${data.refreshReductionPercent}%</div>
-            <div class="time-label">Reduction</div>
-          </div>
-          <div class="time-metric">
-            <div class="time-label">Process Steps</div>
-            <div class="time-value">${data.extraStepsReductionPercent}%</div>
-            <div class="time-label">Improvement</div>
-          </div>
-          <div class="time-metric">
-            <div class="time-label">Workarounds</div>
-            <div class="time-value">${data.workaroundReductionPercent}%</div>
-            <div class="time-label">Eliminated</div>
-          </div>
-        </div>
+        <div class="section-title">Baseline vs Future State Comparison</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Category / Metric</th>
+              <th style="text-align:center;">Baseline</th>
+              <th style="text-align:center;">Future State</th>
+              <th style="text-align:center;">Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#f3f3f3;"><td colspan="4"><strong>Global Parameters</strong></td></tr>
+            <tr>
+              <td>Number of Clinics</td>
+              <td style="text-align:center;">${data.clinicCount}</td>
+              <td style="text-align:center;">${Math.round(data.clinicCount * (1 + data.clinicCountChange / 100))}</td>
+              <td style="text-align:center;">${data.clinicCountChange !== 0 ? (data.clinicCountChange > 0 ? '+' : '') + data.clinicCountChange + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Monthly Leads/Clinic</td>
+              <td style="text-align:center;">${data.monthlyLeadsPerClinic}</td>
+              <td style="text-align:center;">${Math.round(data.monthlyLeadsPerClinic * (1 + data.monthlyLeadsChange / 100))}</td>
+              <td style="text-align:center;">${data.monthlyLeadsChange !== 0 ? (data.monthlyLeadsChange > 0 ? '+' : '') + data.monthlyLeadsChange + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Average Clinic Revenue</td>
+              <td style="text-align:center;">${formatCurrency(data.averageClinicRevenue)}</td>
+              <td style="text-align:center;">${formatCurrency(data.averageClinicRevenue * (1 + data.averageClinicRevenueChange / 100))}</td>
+              <td style="text-align:center;">${data.averageClinicRevenueChange !== 0 ? (data.averageClinicRevenueChange > 0 ? '+' : '') + data.averageClinicRevenueChange + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Wellness Plan Price</td>
+              <td style="text-align:center;">$${data.wellnessPlanPrice}/mo</td>
+              <td style="text-align:center;">$${Math.round(data.wellnessPlanPrice * (1 + data.wellnessPlanPriceChange / 100))}/mo</td>
+              <td style="text-align:center;">${data.wellnessPlanPriceChange !== 0 ? (data.wellnessPlanPriceChange > 0 ? '+' : '') + data.wellnessPlanPriceChange + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Patient LTV (months)</td>
+              <td style="text-align:center;">${data.averagePatientLTVMonths}</td>
+              <td style="text-align:center;">${Math.round(data.averagePatientLTVMonths * (1 + data.patientLTVChange / 100))}</td>
+              <td style="text-align:center;">${data.patientLTVChange !== 0 ? (data.patientLTVChange > 0 ? '+' : '') + data.patientLTVChange + '%' : '—'}</td>
+            </tr>
+            <tr style="background:#f3f3f3;"><td colspan="4"><strong>1. Lead Identification</strong></td></tr>
+            <tr>
+              <td>Cost Per Lead</td>
+              <td style="text-align:center;">$${data.costPerLead}</td>
+              <td style="text-align:center;">$${(data.costPerLead * (1 - data.costPerLeadReductionPercent / 100)).toFixed(2)}</td>
+              <td style="text-align:center;">${data.costPerLeadReductionPercent !== 0 ? '-' + data.costPerLeadReductionPercent + '%' : '—'}</td>
+            </tr>
+            <tr style="background:#f3f3f3;"><td colspan="4"><strong>2. Lead → Patient Conversion</strong></td></tr>
+            <tr>
+              <td>Booking Rate</td>
+              <td style="text-align:center;">${data.leadToAppointmentRate}%</td>
+              <td style="text-align:center;">${data.leadToAppointmentRate + data.appointmentRateImprovement}%</td>
+              <td style="text-align:center;">${data.appointmentRateImprovement !== 0 ? '+' + data.appointmentRateImprovement + ' pts' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Show Rate</td>
+              <td style="text-align:center;">${data.appointmentShowRate}%</td>
+              <td style="text-align:center;">${data.appointmentShowRate + data.showRateImprovement}%</td>
+              <td style="text-align:center;">${data.showRateImprovement !== 0 ? '+' + data.showRateImprovement + ' pts' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Effective Conversion</td>
+              <td style="text-align:center;">${Math.round(data.leadToAppointmentRate * data.appointmentShowRate / 100)}%</td>
+              <td style="text-align:center;">${Math.round((data.leadToAppointmentRate + data.appointmentRateImprovement) * (data.appointmentShowRate + data.showRateImprovement) / 100)}%</td>
+              <td style="text-align:center;">+${Math.round((data.leadToAppointmentRate + data.appointmentRateImprovement) * (data.appointmentShowRate + data.showRateImprovement) / 100) - Math.round(data.leadToAppointmentRate * data.appointmentShowRate / 100)} pts</td>
+            </tr>
+            <tr style="background:#f3f3f3;"><td colspan="4"><strong>3. Patient Retention</strong></td></tr>
+            <tr>
+              <td>Plan Conversion Rate</td>
+              <td style="text-align:center;">${data.planConversionRate}%</td>
+              <td style="text-align:center;">${data.planConversionRate + data.planConversionImprovement}%</td>
+              <td style="text-align:center;">${data.planConversionImprovement !== 0 ? '+' + data.planConversionImprovement + ' pts' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Retention Rate</td>
+              <td style="text-align:center;">${data.currentRetentionRate}%</td>
+              <td style="text-align:center;">${data.currentRetentionRate + data.retentionImprovementPercent}%</td>
+              <td style="text-align:center;">${data.retentionImprovementPercent !== 0 ? '+' + data.retentionImprovementPercent + ' pts' : '—'}</td>
+            </tr>
+            <tr style="background:#f3f3f3;"><td colspan="4"><strong>4. Clinic Operations</strong></td></tr>
+            <tr>
+              <td>System Time / Day</td>
+              <td style="text-align:center;">${data.currentSystemTimeMinutes} min</td>
+              <td style="text-align:center;">${Math.round(data.currentSystemTimeMinutes * (1 - data.timeReductionPercent / 100))} min</td>
+              <td style="text-align:center;">${data.timeReductionPercent !== 0 ? '-' + data.timeReductionPercent + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Revenue Leakage</td>
+              <td style="text-align:center;">${data.currentRevenueLeakagePercent}%</td>
+              <td style="text-align:center;">${(data.currentRevenueLeakagePercent * (1 - data.revenueLeakageReductionPercent / 100)).toFixed(2)}%</td>
+              <td style="text-align:center;">${data.revenueLeakageReductionPercent !== 0 ? '-' + data.revenueLeakageReductionPercent + '%' : '—'}</td>
+            </tr>
+            <tr>
+              <td>Annual IT Costs</td>
+              <td style="text-align:center;">${formatCurrency(data.currentAnnualITCosts)}</td>
+              <td style="text-align:center;">${formatCurrency(data.currentAnnualITCosts * (1 - data.itCostReductionPercent / 100))}</td>
+              <td style="text-align:center;">${data.itCostReductionPercent !== 0 ? '-' + data.itCostReductionPercent + '%' : '—'}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="page-break"></div>
 
       <div class="section">
-        <div class="section-title">Benefits Analysis</div>
+        <div class="section-title">Benefits Analysis by Customer Journey Stage</div>
         <div class="benefits-grid">
           <div class="benefit-item">
             <div class="benefit-header">
-              <div class="benefit-title">Time Savings</div>
+              <div class="benefit-title">1. Lead Identification (Acquisition)</div>
             </div>
-            <div class="benefit-value">${formatCurrency(showCorporateView ? benefits.corporateTimeSavingsValue : benefits.timeSavingsValue)}</div>
-            <div class="benefit-description">Reduction in system refresh times (${data.refreshReductionPercent}%) and elimination of workarounds</div>
+            <div class="benefit-value">${formatCurrency(benefits.sectionBenefits.acquisitionBenefit)}</div>
+            <div class="benefit-description">Marketing cost savings from improved lead quality and reduced cost per lead (${data.costPerLeadReductionPercent}% reduction)</div>
           </div>
           <div class="benefit-item">
             <div class="benefit-header">
-              <div class="benefit-title">Revenue Recovery</div>
+              <div class="benefit-title">2. Lead → Patient Conversion</div>
             </div>
-            <div class="benefit-value">${formatCurrency(showCorporateView ? benefits.corporateRevenueLeakageRecovery : benefits.revenueLeakageRecovery)}</div>
-            <div class="benefit-description">Improved payment processing and reduced revenue leakage</div>
+            <div class="benefit-value">${formatCurrency(benefits.sectionBenefits.conversionBenefit)}</div>
+            <div class="benefit-description">Revenue from improved booking rate (+${data.appointmentRateImprovement} pts) and show rate (+${data.showRateImprovement} pts)</div>
           </div>
           <div class="benefit-item">
             <div class="benefit-header">
-              <div class="benefit-title">Patient Retention</div>
+              <div class="benefit-title">3. Patient Retention</div>
             </div>
-            <div class="benefit-value">${formatCurrency(showCorporateView ? benefits.corporateRetentionImprovementValue : benefits.retentionImprovementValue)}</div>
-            <div class="benefit-description">Enhanced patient experience leading to improved retention rates</div>
+            <div class="benefit-value">${formatCurrency(benefits.sectionBenefits.retentionBenefit)}</div>
+            <div class="benefit-description">Value from improved plan conversion (+${data.planConversionImprovement} pts) and retention rate (+${data.retentionImprovementPercent} pts)</div>
           </div>
           <div class="benefit-item">
             <div class="benefit-header">
-              <div class="benefit-title">IT Cost Reduction</div>
+              <div class="benefit-title">4. Clinic Operations</div>
             </div>
-            <div class="benefit-value">${formatCurrency(benefits.itCostReduction)}</div>
-            <div class="benefit-description">Decreased maintenance and support costs through modern architecture</div>
+            <div class="benefit-value">${formatCurrency(benefits.sectionBenefits.operationsBenefit)}</div>
+            <div class="benefit-description">
+              Time savings (${formatCurrency(benefits.timeSavingsValue)}) + 
+              Revenue recovery (${formatCurrency(benefits.revenueLeakageRecovery)}) + 
+              IT cost reduction (${formatCurrency(benefits.itCostReduction)})
+            </div>
           </div>
+        </div>
+        <div class="info-box">
+          <p><strong>Total Annual Benefits:</strong> ${formatCurrency(benefits.totalAnnualBenefits)} (System-Wide) | ${formatCurrency(benefits.corporateAnnualBenefits)} (Corporate)</p>
         </div>
       </div>
 
@@ -633,38 +786,72 @@ const PDFExport: React.FC<PDFExportProps> = ({ data, benefits, showCorporateView
       </div>
 
       <div class="section">
-        <div class="section-title">Implementation Timeline</div>
+        <div class="section-title">Implementation Timeline & Investment</div>
         <div class="timeline">
           <div class="timeline-phase">
-            <div class="phase-title">SOW 1: Initial Implementation Setup</div>
-            <div class="phase-duration">Sprints 1-4 (2 months)</div>
-            <p>UI Specification & Behavior Design (350h)</p>
-            <p>System Architecture & API Planning (80h)</p>
-            <p>Implementation Alignment Support (40h)</p>
-            <p>Engineering Coordination (55h)</p>
+            <div class="phase-title">Phase 1: Discovery & Design</div>
+            <div class="phase-duration">Months 1-2</div>
+            <p>• Requirements gathering</p>
+            <p>• UI/UX specification</p>
+            <p>• System architecture</p>
+            <p>• API design</p>
           </div>
           <div class="timeline-phase">
-            <div class="phase-title">SOW 2: Full-Stack Feature Development</div>
-            <div class="phase-duration">Sprints 5-10 (2.5 months)</div>
-            <p>Front-End Development (240h)</p>
-            <p>Back-End Development (192h)</p>
-            <p>Development QA Execution (96h)</p>
-            <p>Engineering Coordination (72h)</p>
+            <div class="phase-title">Phase 2: Development</div>
+            <div class="phase-duration">Months 3-5</div>
+            <p>• Front-End development</p>
+            <p>• Back-End development</p>
+            <p>• Integration work</p>
+            <p>• QA testing</p>
           </div>
           <div class="timeline-phase">
-            <div class="phase-title">SOW 3: Finalization & Deployment</div>
-            <div class="phase-duration">Sprints 11-16 (1.5 months)</div>
-            <p>Implementation Engineering (275h)</p>
-            <p>Validation QA (24h)</p>
-            <p>Environment & Deployment Ops (48h)</p>
-            <p>Technical Integration Support (80h)</p>
-            <p>Development Support Services (73h)</p>
+            <div class="phase-title">Phase 3: Deployment</div>
+            <div class="phase-duration">Month 6</div>
+            <p>• User acceptance testing</p>
+            <p>• Training & change mgmt</p>
+            <p>• Rollout & monitoring</p>
+            <p>• Support transition</p>
           </div>
         </div>
         <div class="info-box">
-          <p>Total Duration: 6 months | Total Hours: ${(78750 + 90000 + 75000) / 150} hours</p>
-          <p>This implementation plan follows ASC 350-40 guidelines for software capitalization. All development activities qualify for capitalization under these guidelines.</p>
+          <p><strong>Investment Summary:</strong></p>
+          <p>• CapEx (Capitalizable): ${formatCurrency(data.implementationCapEx)} - Software development, architecture, infrastructure</p>
+          <p>• OpEx (Expensed): ${formatCurrency(data.implementationOpEx)} - Training, change management, project oversight</p>
+          <p>• Recurring OpEx: ${formatCurrency(data.recurringAnnualOpEx)}/year (+${data.annualInflationRate}% annual inflation)</p>
+          <p style="margin-top: 10px;">This implementation plan follows ASC 350-40 guidelines for software capitalization. CapEx will be amortized over 5 years.</p>
         </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">P&L ROI Schedule (5-Year Amortization)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Annual Benefits</th>
+              <th>Amortization Expense</th>
+              <th>Net Annual Impact</th>
+              <th>Cumulative Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({ length: 5 }, (_, i) => {
+              const year = i + 1;
+              const annualAmortization = data.implementationCost / 5;
+              const netAnnualImpact = (showCorporateView ? benefits.corporateAnnualBenefits : benefits.totalAnnualBenefits) - annualAmortization;
+              const cumulativeImpact = netAnnualImpact * year;
+              return `
+                <tr>
+                  <td>Year ${year}</td>
+                  <td>$${formatLargeNumber(showCorporateView ? benefits.corporateAnnualBenefits : benefits.totalAnnualBenefits)}</td>
+                  <td>$${formatLargeNumber(annualAmortization)}</td>
+                  <td>$${formatLargeNumber(netAnnualImpact)}</td>
+                  <td>$${formatLargeNumber(cumulativeImpact)}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
       </div>
 
       <div class="footer">

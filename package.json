@@ -3,13 +3,16 @@
   "private": true,
   "version": "1.0.0",
   "description": "ROI Calculator and Business Case Analysis Tool for The Joint Chiropractic",
+  "homepage": "https://aboerstra.github.io/tjcroi",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "vite preview --host 0.0.0.0 --port 3000"
+    "start": "vite preview --host 0.0.0.0 --port 3000",
+    "predeploy": "vite build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.1.2",
@@ -53,9 +56,9 @@
     "recharts": "^2.12.4",
     "sonner": "^1.4.3",
     "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.0",
-    "zod": "^3.24.1",
-    "tailwindcss-animate": "^1.0.7"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
@@ -68,6 +71,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",

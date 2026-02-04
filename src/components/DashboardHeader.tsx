@@ -1,14 +1,56 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const DashboardHeader: React.FC = () => {
+interface DashboardHeaderProps {
+  scenarioName?: string;
+  onScenarioNameChange?: (name: string) => void;
+}
+
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
+  scenarioName = 'Type Project Name Here',
+  onScenarioNameChange 
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(scenarioName);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setEditValue(scenarioName);
+  }, [scenarioName]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleSave = () => {
+    const trimmedValue = editValue.trim();
+    if (trimmedValue && trimmedValue !== scenarioName) {
+      onScenarioNameChange?.(trimmedValue);
+    } else {
+      setEditValue(scenarioName);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setEditValue(scenarioName);
+      setIsEditing(false);
+    }
+  };
+
   return (
     <div className="bg-blueberry text-white rounded-lg shadow-lg p-6 mb-6">
       <div className="flex flex-col md:flex-row justify-between items-center">
         <div className="flex items-center mb-4 md:mb-0">
           <img 
-            src="/images/Faye%20Logo%20-%20White.png" 
+            src="/tjcroi/images/Faye%20Logo%20-%20White.png" 
             alt="Faye Logo" 
-            className="h-12"
+            className="h-8"
           />
           <div className="ml-3 border-l border-white/20 pl-3">
             <p className="text-sm font-light tracking-wider">WE EAT SOFTWARE</p>
@@ -17,15 +59,35 @@ const DashboardHeader: React.FC = () => {
         
         <div className="flex items-center space-x-8">
           <div className="text-right">
-            <h2 className="text-2xl font-bold">Front Office Business Case</h2>
+            {isEditing ? (
+              <input
+                ref={inputRef}
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={handleKeyDown}
+                className="text-2xl font-bold bg-white/10 border border-white/30 rounded px-2 py-1 text-white placeholder-white/50 focus:outline-none focus:border-white/60 w-full"
+                placeholder="Enter scenario name..."
+              />
+            ) : (
+              <h2 
+                className="text-2xl font-bold cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition-colors group"
+                onClick={() => setIsEditing(true)}
+                title="Click to edit scenario name"
+              >
+                {scenarioName}
+                <span className="ml-2 opacity-0 group-hover:opacity-50 text-sm">✎</span>
+              </h2>
+            )}
             <p className="text-sm text-white/80">ROI Calculator & Implementation Timeline</p>
           </div>
           <div className="h-12 border-l border-white/20"></div>
           <div>
             <img 
-              src="/images/tjc-logo-reverse.jpg" 
+              src="/tjcroi/images/tjc-logo-reverse.jpg" 
               alt="The Joint Chiropractic Logo" 
-              className="h-12 object-contain"
+              className="h-8 object-contain"
             />
           </div>
         </div>

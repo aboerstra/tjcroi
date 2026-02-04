@@ -4,38 +4,38 @@ import { formatLargeNumber } from '@/utils/formatters';
 interface ROISummaryProps {
   totalAnnualBenefits: number;
   corporateAnnualBenefits: number;
-  franchiseAnnualBenefits: number;
   paybackPeriodMonths: number;
   corporatePaybackPeriodMonths: number;
-  firstYearROI: number;
-  corporateFirstYearROI: number;
-  fiveYearROI: number;
-  corporateFiveYearROI: number;
   clinicCount: number;
   implementationCost: number;
   showCorporateView: boolean;
   toggleView: () => void;
+  // Phase 1: New props
+  perClinicAnnualBenefit?: number;
+  perClinicCorporateBenefit?: number;
+  fiveYearNetBenefit?: number;
+  implementationCapEx?: number;
+  implementationOpEx?: number;
 }
 
 const ROISummary: React.FC<ROISummaryProps> = ({
   totalAnnualBenefits,
   corporateAnnualBenefits,
-  franchiseAnnualBenefits,
   paybackPeriodMonths,
   corporatePaybackPeriodMonths,
-  firstYearROI,
-  corporateFirstYearROI,
-  fiveYearROI,
-  corporateFiveYearROI,
   clinicCount,
   implementationCost,
   showCorporateView,
-  toggleView
+  toggleView,
+  perClinicAnnualBenefit,
+  perClinicCorporateBenefit,
+  fiveYearNetBenefit,
+  implementationCapEx,
+  implementationOpEx
 }) => {
   const annualBenefits = showCorporateView ? corporateAnnualBenefits : totalAnnualBenefits;
   const paybackPeriod = showCorporateView ? corporatePaybackPeriodMonths : paybackPeriodMonths;
-  const firstYearROIValue = showCorporateView ? corporateFirstYearROI : firstYearROI;
-  const fiveYearROIValue = showCorporateView ? corporateFiveYearROI : fiveYearROI;
+  const perClinicBenefit = showCorporateView ? perClinicCorporateBenefit : perClinicAnnualBenefit;
 
   return (
     <div className="bg-gradient-to-br from-[#38003C] to-[#4A0072] rounded-lg p-6">
@@ -147,19 +147,47 @@ const ROISummary: React.FC<ROISummaryProps> = ({
         </div>
       </div>
 
-      <div className="mt-6 flex justify-between items-center">
-        <div>
-          <h3 className="text-purple-200 font-medium mb-1">Implementation Cost</h3>
-          <div className="text-2xl font-bold text-white">
+      {/* Phase 1: Enhanced Financial Details */}
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-purple-800/30 rounded-lg p-3">
+          <h3 className="text-purple-200 text-sm font-medium mb-1">Implementation Cost</h3>
+          <div className="text-xl font-bold text-white">
             ${implementationCost.toLocaleString()}
           </div>
+          {implementationCapEx && implementationOpEx && (
+            <p className="text-xs text-purple-300 mt-1">
+              CapEx: ${implementationCapEx.toLocaleString()} | OpEx: ${implementationOpEx.toLocaleString()}
+            </p>
+          )}
         </div>
-        <div className="text-right">
-          <h3 className="text-purple-200 font-medium mb-1">Clinics Impacted</h3>
-          <div className="text-2xl font-bold text-white">
+        
+        <div className="bg-purple-800/30 rounded-lg p-3">
+          <h3 className="text-purple-200 text-sm font-medium mb-1">Clinics Impacted</h3>
+          <div className="text-xl font-bold text-white">
             {clinicCount}
           </div>
+          <p className="text-xs text-purple-300 mt-1">Current network size</p>
         </div>
+
+        {perClinicBenefit !== undefined && (
+          <div className="bg-purple-800/30 rounded-lg p-3 overflow-hidden">
+            <h3 className="text-purple-200 text-sm font-medium mb-1">Per-Clinic Benefit</h3>
+            <div className="text-xl font-bold text-white truncate">
+              ${formatLargeNumber(Math.round(perClinicBenefit))}
+            </div>
+            <p className="text-xs text-purple-300 mt-1">Annual per location</p>
+          </div>
+        )}
+
+        {fiveYearNetBenefit !== undefined && (
+          <div className="bg-purple-800/30 rounded-lg p-3 overflow-hidden">
+            <h3 className="text-purple-200 text-sm font-medium mb-1">5-Year Net Benefit</h3>
+            <div className="text-xl font-bold text-white truncate">
+              ${formatLargeNumber(Math.round(fiveYearNetBenefit))}
+            </div>
+            <p className="text-xs text-purple-300 mt-1">After recurring OpEx</p>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex items-center space-x-2 text-purple-200 text-sm bg-purple-800/30 p-3 rounded-lg">

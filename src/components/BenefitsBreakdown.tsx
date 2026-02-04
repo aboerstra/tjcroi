@@ -1,28 +1,52 @@
 import React from 'react';
+import { SectionBenefits } from '../lib/data';
 
 interface BenefitsBreakdownProps {
+  // New customer journey structure
+  sectionBenefits?: SectionBenefits;
+  // Legacy props for backward compatibility
   timeSavingsValue: number;
   revenueLeakageRecovery: number;
   retentionImprovementValue: number;
   itCostReduction: number;
   totalBenefits: number;
   showCorporateView: boolean;
+  // Optional: Lead conversion value
+  leadConversionValue?: number;
+  marketingSavingsValue?: number;
 }
 
 const BenefitsBreakdown: React.FC<BenefitsBreakdownProps> = ({
+  sectionBenefits,
   timeSavingsValue,
   revenueLeakageRecovery,
   retentionImprovementValue,
   itCostReduction,
   totalBenefits,
-  showCorporateView
+  showCorporateView,
+  leadConversionValue = 0,
+  marketingSavingsValue = 0
 }) => {
   const formatCurrency = (value: number) => {
     return '$' + value.toLocaleString(undefined, { maximumFractionDigits: 0 });
   };
   
   const calculatePercentage = (value: number) => {
+    if (totalBenefits === 0) return '0%';
     return ((value / totalBenefits) * 100).toFixed(1) + '%';
+  };
+
+  // Use new sectionBenefits if available, otherwise use the computed legacy values
+  const benefits = sectionBenefits ? {
+    acquisition: sectionBenefits.acquisitionBenefit,
+    conversion: sectionBenefits.conversionBenefit,
+    retention: sectionBenefits.retentionBenefit,
+    operations: sectionBenefits.operationsBenefit
+  } : {
+    acquisition: marketingSavingsValue,
+    conversion: leadConversionValue,
+    retention: retentionImprovementValue,
+    operations: timeSavingsValue + revenueLeakageRecovery + itCostReduction
   };
   
   return (
@@ -35,92 +59,96 @@ const BenefitsBreakdown: React.FC<BenefitsBreakdownProps> = ({
         </div>
         <div>
           <h2 className="text-xl font-bold text-blueberry">Benefits Breakdown</h2>
-          <p className="text-grey text-sm">Annual value by category</p>
+          <p className="text-grey text-sm">Annual value by customer journey stage</p>
         </div>
       </div>
       
       <div className="space-y-6">
+        {/* 1. Lead Identification (Acquisition) */}
         <div className="benefit-item">
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-tech-violet mr-2"></div>
-              <span className="font-medium text-blueberry">Time Savings</span>
+              <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+              <span className="font-medium text-blueberry">1. Lead Identification</span>
             </div>
-            <span className="font-medium text-tech-violet">{formatCurrency(timeSavingsValue)}</span>
+            <span className="font-medium text-purple-600">{formatCurrency(benefits.acquisition)}</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
             <div 
-              className="bg-tech-violet h-2 rounded-full transition-all duration-500" 
-              style={{ width: calculatePercentage(timeSavingsValue) }}
+              className="bg-purple-500 h-2 rounded-full transition-all duration-500" 
+              style={{ width: calculatePercentage(benefits.acquisition) }}
             ></div>
           </div>
           <p className="text-sm text-grey mt-2">
             {showCorporateView 
-              ? "Corporate receives " + formatCurrency(timeSavingsValue) + " through royalties on franchise revenue increases" 
-              : "Reduced system refreshing, fewer workarounds, and streamlined patient processing"}
+              ? "Corporate share of marketing cost savings through royalties" 
+              : "Marketing cost savings from improved lead quality and reduced cost per lead"}
+          </p>
+        </div>
+
+        {/* 2. Lead → Patient Conversion */}
+        <div className="benefit-item">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+              <span className="font-medium text-blueberry">2. Lead → Patient Conversion</span>
+            </div>
+            <span className="font-medium text-blue-600">{formatCurrency(benefits.conversion)}</span>
+          </div>
+          <div className="w-full bg-gray-100 rounded-full h-2">
+            <div 
+              className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+              style={{ width: calculatePercentage(benefits.conversion) }}
+            ></div>
+          </div>
+          <p className="text-sm text-grey mt-2">
+            {showCorporateView 
+              ? "Corporate receives royalties on revenue from improved booking and show rates" 
+              : "Revenue from higher booking rate and show rate converting more leads to patients"}
           </p>
         </div>
         
+        {/* 3. Patient Retention */}
         <div className="benefit-item">
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-tech-blue mr-2"></div>
-              <span className="font-medium text-blueberry">Revenue Recovery</span>
+              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+              <span className="font-medium text-blueberry">3. Patient Retention</span>
             </div>
-            <span className="font-medium text-tech-blue">{formatCurrency(revenueLeakageRecovery)}</span>
+            <span className="font-medium text-green-600">{formatCurrency(benefits.retention)}</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
             <div 
-              className="bg-tech-blue h-2 rounded-full transition-all duration-500" 
-              style={{ width: calculatePercentage(revenueLeakageRecovery) }}
+              className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+              style={{ width: calculatePercentage(benefits.retention) }}
             ></div>
           </div>
           <p className="text-sm text-grey mt-2">
             {showCorporateView 
-              ? "Corporate receives " + formatCurrency(revenueLeakageRecovery) + " through royalties on recovered revenue" 
-              : "Decreased payment processing errors and reduced revenue leakage"}
+              ? "Corporate receives royalties on increased plan conversion and retention revenue" 
+              : "Value from improved plan conversion rate and higher monthly retention"}
           </p>
         </div>
         
+        {/* 4. Clinic Operations */}
         <div className="benefit-item">
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-tech-green mr-2"></div>
-              <span className="font-medium text-blueberry">Retention Value</span>
+              <div className="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
+              <span className="font-medium text-blueberry">4. Clinic Operations</span>
             </div>
-            <span className="font-medium text-tech-green">{formatCurrency(retentionImprovementValue)}</span>
+            <span className="font-medium text-orange-600">{formatCurrency(benefits.operations)}</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
             <div 
-              className="bg-tech-green h-2 rounded-full transition-all duration-500" 
-              style={{ width: calculatePercentage(retentionImprovementValue) }}
+              className="bg-orange-500 h-2 rounded-full transition-all duration-500" 
+              style={{ width: calculatePercentage(benefits.operations) }}
             ></div>
           </div>
           <p className="text-sm text-grey mt-2">
             {showCorporateView 
-              ? "Corporate receives " + formatCurrency(retentionImprovementValue) + " through royalties on increased retention revenue" 
-              : "Improved membership management leading to better wellness plan retention"}
-          </p>
-        </div>
-        
-        <div className="benefit-item">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-tech-orange mr-2"></div>
-              <span className="font-medium text-blueberry">IT Cost Reduction</span>
-            </div>
-            <span className="font-medium text-tech-orange">{formatCurrency(itCostReduction)}</span>
-          </div>
-          <div className="w-full bg-gray-100 rounded-full h-2">
-            <div 
-              className="bg-tech-orange h-2 rounded-full transition-all duration-500" 
-              style={{ width: calculatePercentage(itCostReduction) }}
-            ></div>
-          </div>
-          <p className="text-sm text-grey mt-2">
-            {showCorporateView 
-              ? "100% of IT cost savings accrue to corporate" 
-              : "IT cost reduction, decreased downtime, and improved system resilience"}
+              ? "Time savings royalties + revenue recovery royalties + 100% IT cost savings" 
+              : "Time savings + revenue recovery + IT cost reduction"}
           </p>
         </div>
         

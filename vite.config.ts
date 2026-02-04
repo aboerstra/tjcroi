@@ -4,7 +4,7 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/tjcroi',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -20,6 +20,7 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
       output: {
